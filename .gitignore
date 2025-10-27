@@ -50,12 +50,18 @@ models/
 
 # Test images (don't commit user data)
 test_images/
+data/
 *.jpg
 *.png
 *.jpeg
 *.gif
 *.bmp
 *.tiff
+
+# But DO include example images for documentation
+!examples/*.png
+!examples/*.jpg
+!examples/*.jpeg
 
 # Output files
 output/

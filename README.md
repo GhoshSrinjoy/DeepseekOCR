@@ -15,6 +15,45 @@
 - 📊 **Progress Tracking**: Real-time animated progress during OCR inference
 - 🖥️ **Cross-Platform**: Docker backend works on Windows, Linux, and Mac
 
+## Example
+
+### Input Image
+
+![Example Document](examples/doc.png)
+
+*Academic paper with complex tables and mathematical notation*
+
+### OCR Output
+
+The model successfully extracts the complete text including:
+
+- **Table 1**: Weighted Kendall rank correlations across 7 datasets
+- **Table 2**: F1 scores with different kernel methods
+- **Table 3**: Model comparison with MAP@1 scores
+- Mathematical notation (e.g., `$S_{M_k} = 0.04$`)
+- Figure captions and references
+- Full paragraph text with proper formatting
+
+**Processing Time**: ~30 seconds on NVIDIA GPU
+
+<details>
+<summary>Click to see full extracted text</summary>
+
+```
+Table 1. Weighted Kendall rank correlations from different methods evaluated on various models and datasets.
+
+| Method                  | CUB200 [51] | CARS196 [20] | SOP [48] | NFCorpus [6] | FEVER [49] | FiQA-2018 [10] | COCO [31] |
+|-------------------------|-------------|--------------|----------|-------------|------------|----------------|-----------|
+| LogME [54]             | 0.52 ± 0.00  | 0.58 ± 0.07  | 0.70 ± 0.05 | -0.60 ± 0.00 | -0.12 ± 0.00 | -0.35 ± 0.00   | -0.09 ± 0.14 |
+| GBC [40]               | 0.77 ± 0.10  | 0.75 ± 0.13  | 0.71 ± 0.10 | 0.70 ± 0.13  | 0.67 ± 0.09  | 0.33 ± 0.00    | -0.72 ± 0.00 |
+| RetMMD-S               | 0.90 ± 0.00  | 0.57 ± 0.18  | 0.73 ± 0.07 | -          | -          | 0.79 ± 0.14    |           |
+| RetMMD-M               | 0.90 ± 0.08  | 0.89 ± 0.08  | 0.80 ± 0.13 | 0.94 ± 0.00  | 0.52 ± 0.05  | 0.80 ± 0.02    | 1 ± 0.00     |
+
+[... full text continues with Table 2, Table 3, and complete paragraph text ...]
+```
+
+</details>
+
 ## Exact Requirements
 
 Based on [official DeepSeek-OCR GitHub](https://github.com/deepseek-ai/DeepSeek-OCR):
