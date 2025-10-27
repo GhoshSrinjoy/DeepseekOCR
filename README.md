@@ -1,6 +1,6 @@
-# DeepSeek-OCR Windows Setup with Docker Backend
+# DeepSeek-OCR Docker Setup
 
-✅ **Fully Working** - Production-ready Docker setup for running DeepSeek-OCR on Windows with NVIDIA CUDA support, using **exact requirements** from the official repository.
+✅ **Fully Working** - Production-ready Docker setup for running DeepSeek-OCR with NVIDIA CUDA support on **Windows, Linux, and Mac**, using **exact requirements** from the official repository.
 
 ## Features
 
@@ -10,9 +10,10 @@
 - ⚙️ **Environment Configuration**: Full `.env` file support for model parameters (base_size, image_size, crop_mode)
 - 🎮 **CUDA Support**: NVIDIA Docker for GPU acceleration with CUDA 11.8 + Flash Attention 2.0
 - 🐳 **Docker Compose**: Easy container management with proper volume mounting
-- 💾 **Persistent Models**: Models cached in `D:/data/models` (shared between host and container)
+- 💾 **Persistent Models**: Models cached in customizable location (default: `D:/data/models`)
 - 🌐 **Flask API**: RESTful interface with `/ocr` and `/ocr/stream` endpoints
 - 📊 **Progress Tracking**: Real-time animated progress during OCR inference
+- 🖥️ **Cross-Platform**: Docker backend works on Windows, Linux, and Mac
 
 ## Exact Requirements
 
@@ -28,53 +29,31 @@ Based on [official DeepSeek-OCR GitHub](https://github.com/deepseek-ai/DeepSeek-
 
 ## Prerequisites
 
-1. **Docker Desktop for Windows** with WSL2 backend
-   - Download: https://www.docker.com/products/docker-desktop
-   - Enable WSL2 during installation
+1. **Docker** (Platform-specific)
+   - **Windows**: [Docker Desktop](https://www.docker.com/products/docker-desktop) with WSL2 backend
+   - **Mac**: [Docker Desktop for Mac](https://www.docker.com/products/docker-desktop)
+   - **Linux**: Docker Engine + nvidia-docker2 (see [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html))
 
-2. **NVIDIA GPU** with recent drivers
-   - Docker Desktop includes nvidia-docker support
-   - Verify: `docker run --rm --gpus all nvidia/cuda:11.8.0-base-ubuntu22.04 nvidia-smi`
+2. **NVIDIA GPU** with recent drivers (optional but recommended)
+   - Verify GPU support: `docker run --rm --gpus all nvidia/cuda:11.8.0-base-ubuntu22.04 nvidia-smi`
+   - Works on CPU too (slower)
 
-3. **Python 3.8+** (for the client script)
+3. **Python 3.8+** (optional, for client script)
+
    ```bash
    pip install Pillow requests
    ```
 
 4. **Model Storage Path** (Customizable)
-   - Default: `D:/data/models` (see [Customizing Model Storage Path](#customizing-model-storage-path) below)
-   - Ensure the directory exists and has sufficient space (~10GB for model + cache)
+   - Default: `D:/data/models` (Windows)
+   - See [Customizing Model Storage Path](#customizing-model-storage-path) for other platforms
+   - Ensure ~10GB free space for model + cache
 
 ## Quick Start
 
-### Option 1: Using Python Client Script (Recommended)
+### Option 1: Using Docker Compose (Recommended for all platforms)
 
-1. **Run the automated script**:
-
-   ```bash
-   python ocr_inference.py
-   ```
-
-   The script will automatically:
-   - Build the Docker image (first time: ~10-15 minutes)
-   - Start the container with GPU support
-   - Download the model (~6.68 GB, first time only)
-   - Wait for the backend to be ready
-
-2. **Perform OCR**:
-   - Enter image paths: `D:/path/to/image.jpg`
-   - Enter URLs: `https://example.com/image.png`
-   - See real-time progress: 🔍 Loading image → Processing → Extracting text
-   - Type `quit` to exit
-
-### Option 2: Using Docker Compose
-
-1. **Configure environment** (optional):
-
-   ```bash
-   cp .env.example .env
-   # Edit .env to customize model parameters
-   ```
+1. **Customize your model path** (see [Customizing Model Storage Path](#customizing-model-storage-path))
 
 2. **Start the container**:
 
@@ -88,11 +67,37 @@ Based on [official DeepSeek-OCR GitHub](https://github.com/deepseek-ai/DeepSeek-
    docker-compose logs -f
    ```
 
-4. **Test the API**:
+4. **Wait for model download** (~6.68 GB, first time only)
+
+5. **Use the API**:
 
    ```bash
-   curl http://localhost:5000/health
+   curl -X POST http://localhost:5000/ocr \
+     -H "Content-Type: application/json" \
+     -d '{"image": "https://example.com/image.jpg"}'
    ```
+
+### Option 2: Using Python Client Script (Windows-focused)
+
+1. **Customize model path in `ocr_inference.py`** (line 14)
+
+2. **Run the automated script**:
+
+   ```bash
+   python ocr_inference.py
+   ```
+
+   The script will automatically:
+   - Build the Docker image (first time: ~10-15 minutes)
+   - Start the container with GPU support
+   - Download the model (~6.68 GB, first time only)
+   - Wait for the backend to be ready
+
+3. **Perform OCR**:
+   - Enter image paths: `D:/path/to/image.jpg`
+   - Enter URLs: `https://example.com/image.png`
+   - See real-time progress: 🔍 Loading image → Processing → Extracting text
+   - Type `quit` to exit
 
 ## Configuration (.env file)
 
@@ -198,13 +203,13 @@ volumes:
 ## Architecture
 
 ```text
-Windows (Host)
-    ├─ ocr_inference.py          # Client script
+Host (Windows/Linux/Mac)
+    ├─ ocr_inference.py          # Client script (optional)
     ├─ Dockerfile                # Container definition
     ├─ docker-compose.yml        # Docker Compose config
     ├─ .env                      # Configuration file
-    └─ D:/data/models/           # Model storage (mounted in container)
-        └─ DeepSeek-OCR/         # Model files
+    └─ <YOUR_PATH>/models/       # Model storage (customizable)
+        └─ DeepSeek-OCR/         # Model files (~6.68 GB)
 
 Docker Container (Ubuntu 22.04 + CUDA 11.8)
     ├─ Python 3.12.9             # Exact version from official repo
@@ -217,17 +222,18 @@ Docker Container (Ubuntu 22.04 + CUDA 11.8)
 
 ## How It Works
 
-1. **Client Script** (`ocr_inference.py`):
-   - Detects Windows OS
+1. **Docker Backend** (`ocr_backend.py`):
+   - Runs in Ubuntu 22.04 container with CUDA 11.8
+   - Loads DeepSeek-OCR model with GPU acceleration
+   - Exposes Flask API on port 5000
+   - Handles model inference and text extraction
+   - Works on Windows, Linux, and Mac
+
+2. **Client Script** (`ocr_inference.py`) - Optional:
+   - Python wrapper for Windows users
    - Manages Docker container lifecycle
    - Sends OCR requests via HTTP API
-   - Displays results
-
-2. **Backend Server** (`ocr_backend.py`):
-   - Runs in Linux Docker container
-   - Loads DeepSeek-OCR model with CUDA
-   - Exposes Flask API on port 5000
-   - Handles model patching and inference
+   - Displays results with progress tracking
 
 ## Troubleshooting
 
@@ -364,12 +370,12 @@ Response:
 
 - **First run**: ~10-15 minutes (Docker build + model download)
 - **Subsequent runs**: ~30 seconds startup time
-- **OCR Speed**: 1-30 seconds depending on image complexity
-  - Simple images: ~1-2 seconds
-  - Documents with tables: ~30 seconds
-- **Model caching**: Models cached in `D:/data/models` and reused
+- **OCR Speed**:
+  - With GPU: 1-5 seconds (simple images), 10-30 seconds (complex documents)
+  - With CPU: 10-60 seconds (significantly slower)
+- **Model caching**: Models cached in your configured path and reused
 - **Model size**: ~6.68 GB
-- **GPU**: Requires NVIDIA GPU with CUDA support (tested on RTX 3090)
+- **GPU**: NVIDIA GPU recommended (tested on RTX 3090), works on CPU too
 
 ## Technical Details
 
