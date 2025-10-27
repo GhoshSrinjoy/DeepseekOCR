@@ -1,0 +1,79 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# PyCharm
+.idea/
+
+# VSCode
+.vscode/
+.claude/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environment variables
+.env.local
+.env.*.local
+
+# Docker
+.dockerignore
+
+# Model files (users should download themselves)
+models/
+
+# Test images (don't commit user data)
+test_images/
+*.jpg
+*.png
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+
+# Output files
+output/
+results/
+*.mmd
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~

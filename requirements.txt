@@ -1,0 +1,24 @@
+# EXACT versions from DeepSeek-OCR official requirements
+# Tested on Python 3.12.9 + CUDA 11.8
+
+# Core dependencies (exact versions)
+transformers==4.46.3
+tokenizers==0.20.3
+einops
+addict
+easydict
+
+# Utilities
+tqdm
+huggingface_hub
+Pillow
+requests
+accelerate
+safetensors
+
+# Flask API server
+flask
+python-dotenv
+
+# Optional: vLLM for better performance (requires separate wheel installation)
+# See: https://github.com/vllm-project/vllm/releases/tag/v0.8.5

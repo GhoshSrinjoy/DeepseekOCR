@@ -1,0 +1,61 @@
+# Docker Compose file for DeepSeek-OCR with NVIDIA CUDA support
+
+services:
+  deepseek-ocr:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: deepseek-ocr-backend:latest
+    container_name: deepseek-ocr-server
+
+    # GPU support (requires nvidia-docker)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    # Ports
+    ports:
+      - "5000:5000"
+
+    # Volume mounts
+    # IMPORTANT: Change D:/data/models to YOUR preferred path for model storage
+    # Format: HOST_PATH:CONTAINER_PATH
+    # Examples:
+    #   - C:/Users/YourName/models:/data/models  (Windows C: drive)
+    #   - E:/ml-models:/data/models              (Windows E: drive)
+    #   - /home/yourname/models:/data/models     (Linux/Mac)
+    volumes:
+      - D:/data/models:/data/models               # Model storage (CUSTOMIZE THIS)
+      - ./ocr_backend.py:/app/ocr_backend.py      # For development
+      - ./.env:/app/.env                          # Environment config
+
+    # Environment variables (can override .env)
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - CUDA_VISIBLE_DEVICES=0
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+    # Resource limits (optional)
+    # mem_limit: 16g
+    # mem_reservation: 8g
+
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
