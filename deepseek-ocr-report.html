@@ -1,0 +1,2987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek-OCR: The Visual Memory Revolution</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --text-primary: #f5f5f7;
+            --text-secondary: #a0a0b0;
+            --accent-cyan: #00d4ff;
+            --accent-magenta: #ff00aa;
+            --accent-gold: #ffd700;
+            --accent-green: #00ff88;
+            --gradient-1: linear-gradient(135deg, #00d4ff 0%, #ff00aa 100%);
+            --gradient-2: linear-gradient(135deg, #1a1a25 0%, #2a2a3a 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Source Sans 3', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.03;
+            background-image: 
+                radial-gradient(circle at 25% 25%, var(--accent-cyan) 1px, transparent 1px),
+                radial-gradient(circle at 75% 75%, var(--accent-magenta) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: bgFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes bgFloat {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-20px, -20px); }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1rem 2rem;
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            list-style: none;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--text-primary);
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 6rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.3; }
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: var(--gradient-1);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease forwards;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 8vw, 7rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 1s ease 0.2s forwards;
+            opacity: 0;
+        }
+
+        .hero h1 span {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.4rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease 0.4s forwards;
+            opacity: 0;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 4rem;
+            animation: fadeInUp 1s ease 0.6s forwards;
+            opacity: 0;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Section Styling */
+        section {
+            padding: 8rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .section-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--accent-cyan);
+            margin-bottom: 1rem;
+            letter-spacing: 0.2em;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Problem Section */
+        #problem {
+            background: var(--bg-secondary);
+            border-radius: 30px;
+            margin: 4rem auto;
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+        }
+
+        .problem-card {
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .problem-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.1);
+        }
+
+        .problem-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-1);
+        }
+
+        .problem-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .problem-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .problem-card p {
+            color: var(--text-secondary);
+        }
+
+        /* Animation Container */
+        .animation-container {
+            background: var(--bg-tertiary);
+            border-radius: 30px;
+            padding: 4rem;
+            margin: 4rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .animation-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        /* Token Comparison Animation */
+        .token-comparison {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .token-side {
+            flex: 1;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .token-box {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            min-height: 200px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .token {
+            width: 12px;
+            height: 12px;
+            background: var(--accent-magenta);
+            border-radius: 3px;
+            animation: tokenPulse 2s ease-in-out infinite;
+        }
+
+        .token:nth-child(odd) {
+            animation-delay: 0.5s;
+        }
+
+        @keyframes tokenPulse {
+            0%, 100% { opacity: 0.5; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        .vision-token {
+            width: 25px;
+            height: 25px;
+            background: var(--gradient-1);
+            border-radius: 6px;
+            animation: visionPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes visionPulse {
+            0%, 100% { opacity: 0.8; transform: scale(0.95); box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+            50% { opacity: 1; transform: scale(1); box-shadow: 0 0 40px rgba(0, 212, 255, 0.6); }
+        }
+
+        .token-label {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .token-count {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            color: var(--accent-cyan);
+            display: block;
+            margin-top: 0.5rem;
+        }
+
+        .vs-badge {
+            background: var(--bg-secondary);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        /* How It Works Flow */
+        .flow-container {
+            position: relative;
+            padding: 4rem 0;
+        }
+
+        .flow-line {
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta), var(--accent-gold));
+            transform: translateY(-50%);
+            z-index: 0;
+        }
+
+        .flow-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+        }
+
+        .flow-step {
+            text-align: center;
+            width: 200px;
+        }
+
+        .step-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 3px solid var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .step-circle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.4);
+            border-color: var(--accent-magenta);
+        }
+
+        .step-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* DeepEncoder Architecture */
+        .architecture-visual {
+            background: var(--bg-secondary);
+            border-radius: 30px;
+            padding: 4rem;
+            margin: 4rem 0;
+        }
+
+        .arch-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        .arch-block {
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            min-width: 150px;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .arch-block:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.2);
+        }
+
+        .arch-block.sam { border: 2px solid var(--accent-cyan); }
+        .arch-block.compressor { border: 2px solid var(--accent-magenta); }
+        .arch-block.clip { border: 2px solid var(--accent-gold); }
+        .arch-block.moe { border: 2px solid var(--accent-green); }
+
+        .arch-arrow {
+            font-size: 2rem;
+            color: var(--text-secondary);
+            animation: arrowPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes arrowPulse {
+            0%, 100% { opacity: 0.5; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(5px); }
+        }
+
+        .block-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .block-name {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .block-params {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-cyan);
+        }
+
+        /* Compression Demo */
+        .compression-demo {
+            background: var(--bg-tertiary);
+            border-radius: 30px;
+            padding: 4rem;
+            margin: 4rem 0;
+        }
+
+        .demo-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .document-preview {
+            width: 300px;
+            height: 400px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .doc-lines {
+            padding: 2rem;
+        }
+
+        .doc-line {
+            height: 8px;
+            background: linear-gradient(90deg, #333 0%, #333 var(--width), transparent var(--width));
+            margin-bottom: 12px;
+            border-radius: 4px;
+            animation: textAppear 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes textAppear {
+            to { opacity: 1; }
+        }
+
+        .compress-arrow {
+            font-size: 4rem;
+            animation: compressArrow 2s ease-in-out infinite;
+        }
+
+        @keyframes compressArrow {
+            0%, 100% { transform: scaleX(1); opacity: 0.7; }
+            50% { transform: scaleX(1.2); opacity: 1; }
+        }
+
+        .compressed-preview {
+            width: 150px;
+            height: 150px;
+            background: var(--gradient-1);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.3);
+            animation: compressedPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes compressedPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .compression-stats {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin-top: 3rem;
+        }
+
+        .comp-stat {
+            text-align: center;
+        }
+
+        .comp-stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        .comp-stat-value.cyan { color: var(--accent-cyan); }
+        .comp-stat-value.magenta { color: var(--accent-magenta); }
+        .comp-stat-value.gold { color: var(--accent-gold); }
+
+        /* Memory Forgetting Animation */
+        .memory-section {
+            background: var(--bg-secondary);
+            border-radius: 30px;
+            padding: 4rem;
+            margin: 4rem 0;
+        }
+
+        .memory-visual {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 2rem;
+            margin: 3rem 0;
+            height: 300px;
+        }
+
+        .memory-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .memory-image {
+            width: 120px;
+            border-radius: 10px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .memory-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0);
+            transition: background 0.5s ease;
+        }
+
+        .memory-image.recent { height: 200px; }
+        .memory-image.older { height: 150px; filter: blur(0.5px); }
+        .memory-image.oldest { height: 100px; filter: blur(1.5px); }
+
+        .memory-image.oldest::after { background: rgba(0, 0, 0, 0.2); }
+
+        .memory-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .memory-tokens {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-cyan);
+        }
+
+        /* Example Cards */
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .example-card {
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .example-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0, 212, 255, 0.15);
+        }
+
+        .example-header {
+            background: var(--gradient-2);
+            padding: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .example-header h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .example-header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .example-content {
+            padding: 2rem;
+        }
+
+        .example-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .example-metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+        }
+
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-cyan);
+            font-weight: 500;
+        }
+
+        /* Interactive Analogy */
+        .analogy-section {
+            background: var(--bg-tertiary);
+            border-radius: 30px;
+            padding: 4rem;
+            margin: 4rem 0;
+        }
+
+        .analogy-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .analogy-tab {
+            background: var(--bg-secondary);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Source Sans 3', sans-serif;
+        }
+
+        .analogy-tab:hover, .analogy-tab.active {
+            background: var(--gradient-1);
+            color: var(--bg-primary);
+        }
+
+        .analogy-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .analogy-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .analogy-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            text-align: center;
+        }
+
+        .analogy-item {
+            max-width: 300px;
+        }
+
+        .analogy-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .analogy-item h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .analogy-item p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Code Block */
+        .code-section {
+            background: var(--bg-secondary);
+            border-radius: 30px;
+            padding: 4rem;
+            margin: 4rem 0;
+        }
+
+        .code-block {
+            background: #1e1e2e;
+            border-radius: 15px;
+            padding: 2rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .code-block .comment { color: #6272a4; }
+        .code-block .keyword { color: var(--accent-magenta); }
+        .code-block .string { color: var(--accent-gold); }
+        .code-block .function { color: var(--accent-cyan); }
+        .code-block .variable { color: var(--text-primary); }
+
+        /* Comparison Table */
+        .comparison-section {
+            margin: 4rem 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .comparison-table th {
+            background: var(--bg-secondary);
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .comparison-table .winner {
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        /* Key Insights */
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .insight-card {
+            background: var(--gradient-2);
+            border-radius: 20px;
+            padding: 2.5rem;
+            border-left: 4px solid var(--accent-cyan);
+        }
+
+        .insight-card:nth-child(2) { border-left-color: var(--accent-magenta); }
+        .insight-card:nth-child(3) { border-left-color: var(--accent-gold); }
+
+        .insight-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .insight-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .insight-card p {
+            color: var(--text-secondary);
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 3rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--gradient-1);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            display: flex;
+            justify-content: center;
+            margin: 3rem 0;
+            position: relative;
+        }
+
+        .timeline-content {
+            width: 45%;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content {
+            margin-right: auto;
+            margin-left: 0;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-left: auto;
+            margin-right: 0;
+        }
+
+        .timeline-dot {
+            width: 20px;
+            height: 20px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            box-shadow: 0 0 20px var(--accent-cyan);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-secondary);
+            padding: 4rem 2rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .footer-link:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav ul {
+                gap: 1.5rem;
+            }
+
+            nav a {
+                font-size: 0.75rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .flow-line {
+                display: none;
+            }
+
+            .flow-steps {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-content {
+                width: calc(100% - 50px);
+                margin-left: 50px !important;
+                margin-right: 0 !important;
+            }
+
+            .timeline-dot {
+                left: 20px;
+            }
+
+            .arch-diagram {
+                flex-direction: column;
+            }
+
+            .arch-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        /* Scroll animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Image Cutting Animation */
+        .patch-animation-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        .patch-stage {
+            text-align: center;
+        }
+
+        .patch-stage h4 {
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .source-image {
+            width: 200px;
+            height: 260px;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .fake-doc {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .doc-header-bar {
+            height: 8px;
+            background: linear-gradient(90deg, #4A90D9, #5BA3EC);
+            border-radius: 4px;
+        }
+
+        .doc-title-fake {
+            height: 12px;
+            width: 70%;
+            background: #333;
+            border-radius: 4px;
+        }
+
+        .doc-para {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .doc-para span {
+            height: 6px;
+            background: #666;
+            border-radius: 3px;
+        }
+
+        .doc-para span:nth-child(1) { width: 100%; }
+        .doc-para span:nth-child(2) { width: 85%; }
+        .doc-para span:nth-child(3) { width: 70%; }
+
+        .doc-image-placeholder {
+            flex: 1;
+            background: linear-gradient(135deg, #e0e0e0, #f5f5f5);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            min-height: 60px;
+        }
+
+        .patch-arrow {
+            font-size: 2.5rem;
+            color: var(--accent-cyan);
+            align-self: center;
+            animation: arrowPulseRight 1s ease-in-out infinite;
+        }
+
+        @keyframes arrowPulseRight {
+            0%, 100% { transform: translateX(0); opacity: 0.7; }
+            50% { transform: translateX(10px); opacity: 1; }
+        }
+
+        .patch-grid-visual {
+            width: 200px;
+            height: 260px;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            gap: 2px;
+            background: var(--bg-secondary);
+            padding: 4px;
+            border-radius: 10px;
+        }
+
+        .mini-patch {
+            border-radius: 2px;
+            animation: patchFadeIn 0.5s ease forwards, patchWiggle 3s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        @keyframes patchFadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes patchWiggle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(0.92); }
+        }
+
+        .smart-chunks-visual {
+            width: 200px;
+            height: 260px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 8px;
+            background: var(--bg-secondary);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .smart-chunk {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(255, 0, 170, 0.3));
+            border: 2px solid var(--accent-cyan);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            animation: chunkGlow 2s ease-in-out infinite;
+            animation-delay: var(--delay);
+        }
+
+        @keyframes chunkGlow {
+            0%, 100% { 
+                box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 25px rgba(0, 212, 255, 0.6);
+                transform: scale(1.02);
+            }
+        }
+
+        .patch-count-label {
+            margin-top: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .patch-count-label.bad { color: var(--accent-magenta); }
+        .patch-count-label.good { color: var(--accent-green); }
+
+        /* Sliding Patches Demo */
+        .sliding-demo {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .slider-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .sliding-source {
+            width: 240px;
+            height: 200px;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 4px;
+            background: #f0f0f0;
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .slide-patch {
+            background: var(--color);
+            border-radius: 4px;
+            animation: slideFloat 4s ease-in-out infinite;
+            animation-delay: calc(var(--row) * 0.1s + var(--col) * 0.05s);
+        }
+
+        @keyframes slideFloat {
+            0%, 100% { 
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            25% {
+                transform: translate(2px, -2px) scale(0.95);
+                opacity: 0.9;
+            }
+            50% { 
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            75% {
+                transform: translate(-2px, 2px) scale(0.95);
+                opacity: 0.9;
+            }
+        }
+
+        .compress-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .compress-arrow-anim {
+            font-size: 3rem;
+            color: var(--accent-cyan);
+            animation: compressArrowPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes compressArrowPulse {
+            0%, 100% { 
+                transform: scaleX(1);
+                opacity: 0.6;
+                text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+            }
+            50% { 
+                transform: scaleX(1.3);
+                opacity: 1;
+                text-shadow: 0 0 30px rgba(0, 212, 255, 0.8);
+            }
+        }
+
+        .compress-indicator span {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sliding-target {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 8px;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            border: 2px solid var(--accent-green);
+        }
+
+        .target-token {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            animation: tokenPop 2s ease-in-out infinite;
+        }
+
+        .target-token.t1 {
+            background: linear-gradient(135deg, #4A90D9, #5BA3EC);
+            animation-delay: 0s;
+        }
+        .target-token.t2 {
+            background: linear-gradient(135deg, #FFE135, #FFD700);
+            animation-delay: 0.2s;
+        }
+        .target-token.t3 {
+            background: linear-gradient(135deg, #4A90D9, #2E5A8E);
+            animation-delay: 0.4s;
+        }
+        .target-token.t4 {
+            background: linear-gradient(135deg, #808080, #606060);
+            animation-delay: 0.6s;
+        }
+
+        @keyframes tokenPop {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+            }
+            50% { 
+                transform: scale(1.08);
+                box-shadow: 0 0 25px rgba(0, 255, 136, 0.5);
+            }
+        }
+
+        /* Token Math Box */
+        .token-math-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .math-side {
+            background: var(--bg-secondary);
+            padding: 1.5rem 2rem;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 200px;
+        }
+
+        .bad-math {
+            border: 2px solid var(--accent-magenta);
+        }
+
+        .good-math {
+            border: 2px solid var(--accent-green);
+        }
+
+        .math-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .math-calc {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .math-num {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .math-result {
+            font-size: 1.3rem;
+            margin-top: 0.5rem;
+            font-weight: 700;
+        }
+
+        .math-vs {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        /* Old cutting styles - keeping for backward compatibility */
+        .cutting-demo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4rem;
+            flex-wrap: wrap;
+            padding: 3rem 0;
+        }
+
+        .cutting-side {
+            text-align: center;
+        }
+
+        .cutting-side h4 {
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .image-container {
+            width: 280px;
+            height: 360px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .document-image {
+            width: 100%;
+            height: 100%;
+            background: white;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 8px;
+        }
+
+        .doc-text-line {
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+        }
+
+        /* Traditional Cutting - Many small pieces */
+        .traditional-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(12, 1fr);
+            gap: 2px;
+            padding: 2px;
+            background: var(--bg-primary);
+        }
+
+        .trad-piece {
+            background: white;
+            border-radius: 2px;
+            opacity: 0;
+            transform: scale(0.8);
+            animation: pieceAppear 0.3s ease forwards;
+        }
+
+        @keyframes pieceAppear {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .trad-piece.explode {
+            animation: pieceExplode 2s ease-in-out infinite;
+        }
+
+        @keyframes pieceExplode {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(var(--tx), var(--ty)) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        /* DeepSeek Cutting - Few large pieces */
+        .deepseek-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 4px;
+            padding: 4px;
+            background: var(--bg-primary);
+        }
+
+        .deep-piece {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(255, 0, 170, 0.2));
+            border: 2px solid var(--accent-cyan);
+            border-radius: 8px;
+            opacity: 0;
+            transform: scale(0.8);
+            animation: deepPieceAppear 0.5s ease forwards;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        @keyframes deepPieceAppear {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .deep-piece.pulse {
+            animation: deepPiecePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes deepPiecePulse {
+            0%, 100% { 
+                box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+                transform: scale(1.02);
+            }
+        }
+
+        .piece-count {
+            margin-top: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+        }
+
+        .piece-count.bad { color: var(--accent-magenta); }
+        .piece-count.good { color: var(--accent-cyan); }
+
+        /* KV Cache Animation */
+        .kv-cache-section {
+            background: var(--bg-tertiary);
+            border-radius: 30px;
+            padding: 4rem;
+            margin: 4rem 0;
+        }
+
+        .kv-comparison {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            flex-wrap: wrap;
+        }
+
+        .kv-side {
+            flex: 1;
+            min-width: 350px;
+            max-width: 500px;
+        }
+
+        .kv-side h4 {
+            font-family: 'Playfair Display', serif;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        .kv-visual {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 2rem;
+            min-height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kv-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .kv-label {
+            width: 60px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .kv-bar-container {
+            flex: 1;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .kv-bar {
+            height: 100%;
+            border-radius: 8px;
+            position: relative;
+            transition: width 1s ease;
+        }
+
+        .kv-bar.key {
+            background: linear-gradient(90deg, var(--accent-cyan), #00a8cc);
+        }
+
+        .kv-bar.value {
+            background: linear-gradient(90deg, var(--accent-magenta), #cc0088);
+        }
+
+        .kv-bar.compressed {
+            background: linear-gradient(90deg, var(--accent-green), #00cc66);
+        }
+
+        .kv-bar-label {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .kv-memory-meter {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .memory-bar {
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .memory-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .memory-fill.danger {
+            background: linear-gradient(90deg, #ff4444, #cc0000);
+        }
+
+        .memory-fill.safe {
+            background: linear-gradient(90deg, var(--accent-green), #00aa55);
+        }
+
+        .kv-tokens-animation {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+
+        .kv-token {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-magenta);
+            border-radius: 2px;
+            opacity: 0;
+            animation: kvTokenAppear 0.2s ease forwards;
+        }
+
+        .kv-token.compressed {
+            width: 16px;
+            height: 16px;
+            background: var(--gradient-1);
+            border-radius: 4px;
+        }
+
+        @keyframes kvTokenAppear {
+            to { opacity: 1; }
+        }
+
+        /* OCR Process Animation */
+        .ocr-process-animation {
+            background: var(--bg-secondary);
+            border-radius: 30px;
+            padding: 4rem;
+            margin: 4rem 0;
+        }
+
+        .ocr-stages {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .ocr-stage {
+            flex: 1;
+            min-width: 180px;
+            text-align: center;
+            position: relative;
+        }
+
+        .stage-visual {
+            width: 150px;
+            height: 180px;
+            margin: 0 auto 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stage-arrow {
+            font-size: 2rem;
+            color: var(--accent-cyan);
+            animation: arrowBounce 1s ease-in-out infinite;
+        }
+
+        @keyframes arrowBounce {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+
+        /* Original document stage */
+        .original-doc {
+            width: 120px;
+            height: 150px;
+            background: white;
+            border-radius: 5px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .mini-line {
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+        }
+
+        /* Render to image stage */
+        .render-stage {
+            position: relative;
+        }
+
+        .render-frame {
+            width: 120px;
+            height: 150px;
+            background: white;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 20px var(--accent-cyan);
+            animation: scanDown 2s ease-in-out infinite;
+        }
+
+        @keyframes scanDown {
+            0% { top: 0; }
+            50% { top: calc(100% - 4px); }
+            100% { top: 0; }
+        }
+
+        /* Patch extraction stage */
+        .patch-grid {
+            width: 120px;
+            height: 150px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 3px;
+        }
+
+        .patch {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 3px;
+            animation: patchPulse 2s ease-in-out infinite;
+        }
+
+        .patch:nth-child(odd) {
+            animation-delay: 0.5s;
+        }
+
+        @keyframes patchPulse {
+            0%, 100% { opacity: 0.6; transform: scale(0.95); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Compression stage */
+        .compressed-tokens {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            width: 100px;
+            justify-content: center;
+        }
+
+        .compressed-token {
+            width: 20px;
+            height: 20px;
+            background: var(--gradient-1);
+            border-radius: 5px;
+            animation: compTokenGlow 1.5s ease-in-out infinite;
+        }
+
+        @keyframes compTokenGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(0, 212, 255, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.8); }
+        }
+
+        /* Output text stage */
+        .output-text {
+            width: 120px;
+            height: 150px;
+            background: var(--bg-primary);
+            border-radius: 5px;
+            border: 2px solid var(--accent-green);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            position: relative;
+        }
+
+        .output-line {
+            height: 6px;
+            background: var(--accent-green);
+            border-radius: 3px;
+            animation: typeOut 3s ease-in-out infinite;
+        }
+
+        @keyframes typeOut {
+            0% { width: 0; }
+            50% { width: 100%; }
+            100% { width: 100%; }
+        }
+
+        .accuracy-badge {
+            position: absolute;
+            bottom: -10px;
+            right: -10px;
+            background: var(--accent-green);
+            color: var(--bg-primary);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .stage-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .stage-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+
+    <nav>
+        <ul>
+            <li><a href="#problem">The Problem</a></li>
+            <li><a href="#innovation">Innovation</a></li>
+            <li><a href="#how">How It Works</a></li>
+            <li><a href="#memory">Memory</a></li>
+            <li><a href="#results">Results</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <span class="hero-badge">🚀 Revolutionary AI Innovation</span>
+        <h1>DeepSeek-<span>OCR</span></h1>
+        <p class="hero-subtitle">The groundbreaking technology that compresses text into images, achieving 10× compression with 97% accuracy — redefining how AI remembers</p>
+        <div class="hero-stats">
+            <div class="stat">
+                <span class="stat-value">10×</span>
+                <span class="stat-label">Compression Ratio</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value">97%</span>
+                <span class="stat-label">Accuracy</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value">200K+</span>
+                <span class="stat-label">Pages/Day</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section id="problem">
+        <div class="section-header">
+            <div class="section-number">01 / THE CHALLENGE</div>
+            <h2 class="section-title">The Token Explosion Problem</h2>
+            <p class="section-subtitle">Why traditional approaches hit a wall when processing long documents</p>
+        </div>
+
+        <div class="problem-grid reveal">
+            <div class="problem-card">
+                <div class="problem-icon">📈</div>
+                <h3>Quadratic Scaling Nightmare</h3>
+                <p>Transformer attention scales <strong>quadratically</strong> with sequence length. A 10× longer document isn't just 10× harder—it's potentially <strong>100× harder</strong> to process. This makes long documents incredibly expensive.</p>
+            </div>
+            <div class="problem-card">
+                <div class="problem-icon">💾</div>
+                <h3>Memory Explosion</h3>
+                <p>Each token in a document requires storing Key-Value pairs in the KV cache. For a 100K token document, this cache can consume <strong>gigabytes of GPU memory</strong>, making real-time processing nearly impossible.</p>
+            </div>
+            <div class="problem-card">
+                <div class="problem-icon">🧠</div>
+                <h3>Context Rot</h3>
+                <p>When conversations grow long, AI models suffer from "context rot"—they start <strong>forgetting earlier information</strong> and getting things muddled. Important details from the beginning get lost.</p>
+            </div>
+        </div>
+
+        <!-- Token Comparison Animation -->
+        <div class="animation-container reveal">
+            <h3 class="animation-title">Traditional OCR: Token Overload</h3>
+            <div class="token-comparison">
+                <div class="token-side">
+                    <div class="token-box" id="traditional-tokens">
+                        <!-- Generated by JS -->
+                    </div>
+                    <div class="token-label">Traditional Approach</div>
+                    <span class="token-count">~1000 tokens</span>
+                </div>
+                <div class="vs-badge">VS</div>
+                <div class="token-side">
+                    <div class="token-box" id="deepseek-tokens">
+                        <!-- Generated by JS -->
+                    </div>
+                    <div class="token-label">DeepSeek-OCR</div>
+                    <span class="token-count">~100 tokens</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Patch Animation - NEW -->
+        <div class="animation-container reveal">
+            <h3 class="animation-title">🔪 How Images Get "Cut" Into Patches</h3>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">
+                Watch how a document image gets split into patches, then compressed into tokens
+            </p>
+            
+            <!-- Main Patch Animation -->
+            <div class="patch-animation-container">
+                <div class="patch-stage">
+                    <h4>📄 Original Image</h4>
+                    <div class="source-image">
+                        <div class="fake-doc">
+                            <div class="doc-header-bar"></div>
+                            <div class="doc-title-fake"></div>
+                            <div class="doc-para">
+                                <span></span><span></span><span></span>
+                            </div>
+                            <div class="doc-para">
+                                <span></span><span></span>
+                            </div>
+                            <div class="doc-image-placeholder">📊</div>
+                            <div class="doc-para">
+                                <span></span><span></span><span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="patch-arrow">➜</div>
+
+                <div class="patch-stage">
+                    <h4>🔲 Traditional: Many Patches</h4>
+                    <div class="patch-grid-visual" id="trad-patch-grid">
+                        <!-- 8x10 grid of small patches -->
+                    </div>
+                    <div class="patch-count-label bad">80 patches!</div>
+                </div>
+
+                <div class="patch-arrow">➜</div>
+
+                <div class="patch-stage">
+                    <h4>🗜️ DeepSeek: Smart Chunks</h4>
+                    <div class="smart-chunks-visual">
+                        <div class="smart-chunk chunk-1" style="--delay: 0s;">📝</div>
+                        <div class="smart-chunk chunk-2" style="--delay: 0.1s;">📊</div>
+                        <div class="smart-chunk chunk-3" style="--delay: 0.2s;">📋</div>
+                        <div class="smart-chunk chunk-4" style="--delay: 0.3s;">✨</div>
+                    </div>
+                    <div class="patch-count-label good">4 vision tokens!</div>
+                </div>
+            </div>
+
+            <!-- Sliding Patches Animation -->
+            <div class="sliding-demo">
+                <h4 style="text-align: center; margin-bottom: 1.5rem; font-family: 'Playfair Display', serif;">
+                    🎬 Watch Patches Slide & Compress
+                </h4>
+                <div class="slider-container">
+                    <div class="sliding-source">
+                        <div class="slide-patch" style="--color: #4A90D9; --row: 0; --col: 0;"></div>
+                        <div class="slide-patch" style="--color: #4A90D9; --row: 0; --col: 1;"></div>
+                        <div class="slide-patch" style="--color: #5BA3EC; --row: 0; --col: 2;"></div>
+                        <div class="slide-patch" style="--color: #808080; --row: 0; --col: 3;"></div>
+                        <div class="slide-patch" style="--color: #808080; --row: 0; --col: 4;"></div>
+                        <div class="slide-patch" style="--color: #808080; --row: 0; --col: 5;"></div>
+                        
+                        <div class="slide-patch" style="--color: #FFE135; --row: 1; --col: 0;"></div>
+                        <div class="slide-patch" style="--color: #FFE135; --row: 1; --col: 1;"></div>
+                        <div class="slide-patch" style="--color: #4A90D9; --row: 1; --col: 2;"></div>
+                        <div class="slide-patch" style="--color: #4A90D9; --row: 1; --col: 3;"></div>
+                        <div class="slide-patch" style="--color: #5BA3EC; --row: 1; --col: 4;"></div>
+                        <div class="slide-patch" style="--color: #808080; --row: 1; --col: 5;"></div>
+                        
+                        <div class="slide-patch" style="--color: #FFE135; --row: 2; --col: 0;"></div>
+                        <div class="slide-patch" style="--color: #FFE135; --row: 2; --col: 1;"></div>
+                        <div class="slide-patch" style="--color: #4A90D9; --row: 2; --col: 2;"></div>
+                        <div class="slide-patch" style="--color: #4A90D9; --row: 2; --col: 3;"></div>
+                        <div class="slide-patch" style="--color: #4A90D9; --row: 2; --col: 4;"></div>
+                        <div class="slide-patch" style="--color: #808080; --row: 2; --col: 5;"></div>
+                        
+                        <div class="slide-patch" style="--color: #808080; --row: 3; --col: 0;"></div>
+                        <div class="slide-patch" style="--color: #4A90D9; --row: 3; --col: 1;"></div>
+                        <div class="slide-patch" style="--color: #4A90D9; --row: 3; --col: 2;"></div>
+                        <div class="slide-patch" style="--color: #5BA3EC; --row: 3; --col: 3;"></div>
+                        <div class="slide-patch" style="--color: #5BA3EC; --row: 3; --col: 4;"></div>
+                        <div class="slide-patch" style="--color: #808080; --row: 3; --col: 5;"></div>
+                        
+                        <div class="slide-patch" style="--color: #808080; --row: 4; --col: 0;"></div>
+                        <div class="slide-patch" style="--color: #808080; --row: 4; --col: 1;"></div>
+                        <div class="slide-patch" style="--color: #4A90D9; --row: 4; --col: 2;"></div>
+                        <div class="slide-patch" style="--color: #4A90D9; --row: 4; --col: 3;"></div>
+                        <div class="slide-patch" style="--color: #808080; --row: 4; --col: 4;"></div>
+                        <div class="slide-patch" style="--color: #808080; --row: 4; --col: 5;"></div>
+                    </div>
+                    
+                    <div class="compress-indicator">
+                        <div class="compress-arrow-anim">⟹</div>
+                        <span>16× Compress</span>
+                    </div>
+                    
+                    <div class="sliding-target">
+                        <div class="target-token t1"></div>
+                        <div class="target-token t2"></div>
+                        <div class="target-token t3"></div>
+                        <div class="target-token t4"></div>
+                    </div>
+                </div>
+                <p style="text-align: center; color: var(--text-secondary); margin-top: 1.5rem;">
+                    <span style="display: inline-block; width: 15px; height: 15px; background: #4A90D9; border-radius: 3px; vertical-align: middle;"></span> Text regions
+                    <span style="display: inline-block; width: 15px; height: 15px; background: #FFE135; border-radius: 3px; vertical-align: middle; margin-left: 1rem;"></span> Headings
+                    <span style="display: inline-block; width: 15px; height: 15px; background: #808080; border-radius: 3px; vertical-align: middle; margin-left: 1rem;"></span> Whitespace
+                </p>
+            </div>
+
+            <!-- Token Count Comparison -->
+            <div class="token-math-box">
+                <div class="math-side bad-math">
+                    <div class="math-icon">❌</div>
+                    <div class="math-calc">
+                        <span class="math-num">80</span> patches × <span class="math-num">12</span> tokens
+                        <div class="math-result">= <span style="color: var(--accent-magenta);">960 tokens</span></div>
+                    </div>
+                </div>
+                <div class="math-vs">VS</div>
+                <div class="math-side good-math">
+                    <div class="math-icon">✅</div>
+                    <div class="math-calc">
+                        <span class="math-num">80</span> patches ÷ <span class="math-num">16</span> compress
+                        <div class="math-result">= <span style="color: var(--accent-green);">~100 tokens</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KV Cache Animation - NEW -->
+        <div class="kv-cache-section reveal">
+            <h3 class="animation-title">💾 The KV Cache Problem (And Solution)</h3>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">
+                Every token needs Key-Value storage. More tokens = More memory = Slower processing
+            </p>
+            
+            <div class="kv-comparison">
+                <div class="kv-side">
+                    <h4>❌ Traditional: Memory Explosion</h4>
+                    <div class="kv-visual">
+                        <div class="kv-row">
+                            <span class="kv-label">Token 1</span>
+                            <div class="kv-bar-container">
+                                <div class="kv-bar key" style="width: 45%;">
+                                    <span class="kv-bar-label">Key</span>
+                                </div>
+                            </div>
+                            <div class="kv-bar-container">
+                                <div class="kv-bar value" style="width: 45%;">
+                                    <span class="kv-bar-label">Value</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-label">Token 2</span>
+                            <div class="kv-bar-container">
+                                <div class="kv-bar key" style="width: 45%;"></div>
+                            </div>
+                            <div class="kv-bar-container">
+                                <div class="kv-bar value" style="width: 45%;"></div>
+                            </div>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-label">...</span>
+                            <div style="flex: 1; text-align: center; color: var(--text-secondary);">× 1000 tokens</div>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-label">Token N</span>
+                            <div class="kv-bar-container">
+                                <div class="kv-bar key" style="width: 45%;"></div>
+                            </div>
+                            <div class="kv-bar-container">
+                                <div class="kv-bar value" style="width: 45%;"></div>
+                            </div>
+                        </div>
+                        <div class="kv-memory-meter">
+                            <p style="margin-bottom: 0.5rem; font-size: 0.9rem;">GPU Memory Usage</p>
+                            <div class="memory-bar">
+                                <div class="memory-fill danger" style="width: 95%;">95% FULL! 🔥</div>
+                            </div>
+                        </div>
+                        <div class="kv-tokens-animation" id="kv-tokens-traditional">
+                            <!-- Generated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kv-side">
+                    <h4>✅ DeepSeek: Memory Efficient</h4>
+                    <div class="kv-visual">
+                        <div class="kv-row">
+                            <span class="kv-label">Vis 1</span>
+                            <div class="kv-bar-container">
+                                <div class="kv-bar compressed" style="width: 80%;">
+                                    <span class="kv-bar-label">Compressed K+V</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-label">Vis 2</span>
+                            <div class="kv-bar-container">
+                                <div class="kv-bar compressed" style="width: 80%;"></div>
+                            </div>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-label">...</span>
+                            <div style="flex: 1; text-align: center; color: var(--text-secondary);">× 100 vision tokens</div>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-label">Vis N</span>
+                            <div class="kv-bar-container">
+                                <div class="kv-bar compressed" style="width: 80%;"></div>
+                            </div>
+                        </div>
+                        <div class="kv-memory-meter">
+                            <p style="margin-bottom: 0.5rem; font-size: 0.9rem;">GPU Memory Usage</p>
+                            <div class="memory-bar">
+                                <div class="memory-fill safe" style="width: 15%;">15% ✓</div>
+                            </div>
+                        </div>
+                        <div class="kv-tokens-animation" id="kv-tokens-deepseek">
+                            <!-- Generated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-top: 3rem;">
+                <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 15px; text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">📊</div>
+                    <h5 style="margin-bottom: 0.5rem;">Traditional KV Cache</h5>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">1000 tokens × 2 (K+V) × embedding size = <span style="color: var(--accent-magenta);">HUGE</span></p>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 15px; text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🗜️</div>
+                    <h5 style="margin-bottom: 0.5rem;">DeepSeek KV Cache</h5>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">100 tokens × 2 (K+V) × embedding size = <span style="color: var(--accent-green);">10× smaller!</span></p>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 15px; text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚡</div>
+                    <h5 style="margin-bottom: 0.5rem;">Speed Benefit</h5>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Attention is O(n²) — 10× fewer tokens = <span style="color: var(--accent-cyan);">100× faster!</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- OCR Process Animation - NEW -->
+        <div class="ocr-process-animation reveal">
+            <h3 class="animation-title">🎬 The Complete OCR Pipeline (Animated)</h3>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 3rem;">
+                Watch how text transforms from document → image → tokens → text
+            </p>
+            
+            <div class="ocr-stages">
+                <div class="ocr-stage">
+                    <div class="stage-visual">
+                        <div class="original-doc">
+                            <div class="mini-line" style="width: 90%;"></div>
+                            <div class="mini-line" style="width: 75%;"></div>
+                            <div class="mini-line" style="width: 85%;"></div>
+                            <div class="mini-line" style="width: 60%;"></div>
+                            <div class="mini-line" style="width: 95%;"></div>
+                            <div class="mini-line" style="width: 70%;"></div>
+                            <div class="mini-line" style="width: 80%;"></div>
+                            <div class="mini-line" style="width: 65%;"></div>
+                            <div class="mini-line" style="width: 90%;"></div>
+                            <div class="mini-line" style="width: 55%;"></div>
+                        </div>
+                    </div>
+                    <div class="stage-title">1. Original</div>
+                    <div class="stage-label">Text Document</div>
+                </div>
+
+                <div class="stage-arrow">→</div>
+
+                <div class="ocr-stage">
+                    <div class="stage-visual render-stage">
+                        <div class="render-frame">
+                            <div class="scan-line"></div>
+                            <div style="padding: 10px; display: flex; flex-direction: column; gap: 5px;">
+                                <div class="mini-line" style="width: 90%; background: #333;"></div>
+                                <div class="mini-line" style="width: 75%; background: #333;"></div>
+                                <div class="mini-line" style="width: 85%; background: #333;"></div>
+                                <div class="mini-line" style="width: 60%; background: #333;"></div>
+                                <div class="mini-line" style="width: 95%; background: #333;"></div>
+                                <div class="mini-line" style="width: 70%; background: #333;"></div>
+                                <div class="mini-line" style="width: 80%; background: #333;"></div>
+                                <div class="mini-line" style="width: 65%; background: #333;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stage-title">2. Render</div>
+                    <div class="stage-label">As Image</div>
+                </div>
+
+                <div class="stage-arrow">→</div>
+
+                <div class="ocr-stage">
+                    <div class="stage-visual">
+                        <div class="patch-grid">
+                            <div class="patch"></div><div class="patch"></div><div class="patch"></div><div class="patch"></div>
+                            <div class="patch"></div><div class="patch"></div><div class="patch"></div><div class="patch"></div>
+                            <div class="patch"></div><div class="patch"></div><div class="patch"></div><div class="patch"></div>
+                            <div class="patch"></div><div class="patch"></div><div class="patch"></div><div class="patch"></div>
+                            <div class="patch"></div><div class="patch"></div><div class="patch"></div><div class="patch"></div>
+                        </div>
+                    </div>
+                    <div class="stage-title">3. Patchify</div>
+                    <div class="stage-label">Extract Patches</div>
+                </div>
+
+                <div class="stage-arrow">→</div>
+
+                <div class="ocr-stage">
+                    <div class="stage-visual">
+                        <div class="compressed-tokens">
+                            <div class="compressed-token" style="animation-delay: 0s;"></div>
+                            <div class="compressed-token" style="animation-delay: 0.1s;"></div>
+                            <div class="compressed-token" style="animation-delay: 0.2s;"></div>
+                            <div class="compressed-token" style="animation-delay: 0.3s;"></div>
+                            <div class="compressed-token" style="animation-delay: 0.4s;"></div>
+                            <div class="compressed-token" style="animation-delay: 0.5s;"></div>
+                        </div>
+                    </div>
+                    <div class="stage-title">4. Compress</div>
+                    <div class="stage-label">16× Reduction</div>
+                </div>
+
+                <div class="stage-arrow">→</div>
+
+                <div class="ocr-stage">
+                    <div class="stage-visual">
+                        <div class="output-text">
+                            <div class="output-line" style="animation-delay: 0s; width: 90%;"></div>
+                            <div class="output-line" style="animation-delay: 0.2s; width: 75%;"></div>
+                            <div class="output-line" style="animation-delay: 0.4s; width: 85%;"></div>
+                            <div class="output-line" style="animation-delay: 0.6s; width: 60%;"></div>
+                            <div class="output-line" style="animation-delay: 0.8s; width: 95%;"></div>
+                            <div class="output-line" style="animation-delay: 1s; width: 70%;"></div>
+                            <div class="output-line" style="animation-delay: 1.2s; width: 80%;"></div>
+                            <div class="output-line" style="animation-delay: 1.4s; width: 65%;"></div>
+                            <span class="accuracy-badge">97% ✓</span>
+                        </div>
+                    </div>
+                    <div class="stage-title">5. Decode</div>
+                    <div class="stage-label">Reconstruct Text</div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(255, 0, 170, 0.1)); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <h4 style="font-family: 'Playfair Display', serif; margin-bottom: 1rem;">🎯 The Magic Moment</h4>
+                <p style="color: var(--text-secondary); font-size: 1.1rem; max-width: 700px; margin: 0 auto;">
+                    <strong style="color: var(--accent-cyan);">20 image patches</strong> become 
+                    <strong style="color: var(--accent-magenta);">6 vision tokens</strong>, which then decode back into 
+                    <strong style="color: var(--accent-green);">the original text with 97% accuracy</strong>. 
+                    That's the power of Contexts Optical Compression!
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Innovation Section -->
+    <section id="innovation">
+        <div class="section-header">
+            <div class="section-number">02 / THE BREAKTHROUGH</div>
+            <h2 class="section-title">Contexts Optical Compression</h2>
+            <p class="section-subtitle">The revolutionary idea: What if text was better stored as images?</p>
+        </div>
+
+        <!-- Simple Analogy -->
+        <div class="analogy-section reveal">
+            <div class="analogy-tabs">
+                <button class="analogy-tab active" onclick="showAnalogy('book')">📚 The Book Analogy</button>
+                <button class="analogy-tab" onclick="showAnalogy('zip')">🗜️ The ZIP File</button>
+                <button class="analogy-tab" onclick="showAnalogy('memory')">🧠 Human Memory</button>
+            </div>
+
+            <div id="book-analogy" class="analogy-content active">
+                <div class="analogy-visual">
+                    <div class="analogy-item">
+                        <div class="analogy-icon">📖</div>
+                        <h4>Traditional Way</h4>
+                        <p>Like reading a book out loud, word by word, and recording every single syllable. You get perfect accuracy, but the recording is HUGE.</p>
+                    </div>
+                    <div style="font-size: 3rem; color: var(--text-secondary)">→</div>
+                    <div class="analogy-item">
+                        <div class="analogy-icon">📸</div>
+                        <h4>DeepSeek-OCR Way</h4>
+                        <p>Like taking a photograph of the page. The picture is tiny, but contains ALL the information. Then, you use AI to "read" the photo when needed.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="zip-analogy" class="analogy-content">
+                <div class="analogy-visual">
+                    <div class="analogy-item">
+                        <div class="analogy-icon">📁</div>
+                        <h4>Uncompressed Files</h4>
+                        <p>Imagine storing 1000 documents as plain text files. Each character takes space. Total: massive storage requirements.</p>
+                    </div>
+                    <div style="font-size: 3rem; color: var(--text-secondary)">→</div>
+                    <div class="analogy-item">
+                        <div class="analogy-icon">🗜️</div>
+                        <h4>Visual ZIP</h4>
+                        <p>DeepSeek-OCR is like a super-smart ZIP file that compresses text into visual form. 10× smaller, but you can still extract everything back!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="memory-analogy" class="analogy-content">
+                <div class="analogy-visual">
+                    <div class="analogy-item">
+                        <div class="analogy-icon">🗂️</div>
+                        <h4>Perfect Recall</h4>
+                        <p>A computer that remembers every word of every conversation perfectly—but eventually runs out of storage space.</p>
+                    </div>
+                    <div style="font-size: 3rem; color: var(--text-secondary)">→</div>
+                    <div class="analogy-item">
+                        <div class="analogy-icon">🧠</div>
+                        <h4>Human-Like Memory</h4>
+                        <p>Like human memory: recent events are crystal clear, older memories become "blurrier" but still accessible. Efficient AND natural!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Core Innovation Explanation -->
+        <div class="insights-grid reveal">
+            <div class="insight-card">
+                <div class="insight-icon">🎯</div>
+                <h3>The Core Insight</h3>
+                <p>A page of text rendered as an image can be represented with <strong>far fewer tokens</strong> than the text itself, while containing the same information. It's a change of representation that exploits the efficiency of 2D visual encoding.</p>
+            </div>
+            <div class="insight-card">
+                <div class="insight-icon">💡</div>
+                <h3>Why It Works</h3>
+                <p>Text is <strong>redundant</strong>—lots of whitespace, repeated patterns, predictable layouts. Images naturally compress this redundancy. Plus, visual representations preserve <strong>layout and structure</strong> that pure text loses.</p>
+            </div>
+            <div class="insight-card">
+                <div class="insight-icon">🔄</div>
+                <h3>The Magic</h3>
+                <p>DeepSeek-OCR learns to <strong>encode text → image → compressed tokens</strong> and then <strong>decode back to text</strong> with 97% accuracy. It's like teaching AI to take notes as pictures!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how">
+        <div class="section-header">
+            <div class="section-number">03 / THE ARCHITECTURE</div>
+            <h2 class="section-title">How DeepSeek-OCR Works</h2>
+            <p class="section-subtitle">A visual journey through the technology</p>
+        </div>
+
+        <!-- Process Flow -->
+        <div class="flow-container reveal">
+            <div class="flow-line"></div>
+            <div class="flow-steps">
+                <div class="flow-step">
+                    <div class="step-circle">📄</div>
+                    <div class="step-title">Input Document</div>
+                    <div class="step-desc">Text or document is rendered as a high-resolution image</div>
+                </div>
+                <div class="flow-step">
+                    <div class="step-circle">🔍</div>
+                    <div class="step-title">SAM Encoder</div>
+                    <div class="step-desc">Local window attention extracts fine-grained details</div>
+                </div>
+                <div class="flow-step">
+                    <div class="step-circle">🗜️</div>
+                    <div class="step-title">16× Compressor</div>
+                    <div class="step-desc">Convolutional layer reduces token count dramatically</div>
+                </div>
+                <div class="flow-step">
+                    <div class="step-circle">🌐</div>
+                    <div class="step-title">CLIP Encoder</div>
+                    <div class="step-desc">Global attention captures overall context and meaning</div>
+                </div>
+                <div class="flow-step">
+                    <div class="step-circle">✨</div>
+                    <div class="step-title">MoE Decoder</div>
+                    <div class="step-desc">Reconstructs original text from compressed tokens</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Architecture Visualization -->
+        <div class="architecture-visual reveal">
+            <h3 class="animation-title">DeepEncoder Architecture</h3>
+            <div class="arch-diagram">
+                <div class="arch-block sam">
+                    <div class="block-icon">🔬</div>
+                    <div class="block-name">SAM-base</div>
+                    <div class="block-params">80M params</div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">Window Attention<br/>Local Perception</p>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-block compressor">
+                    <div class="block-icon">🗜️</div>
+                    <div class="block-name">Compressor</div>
+                    <div class="block-params">16× reduction</div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">Convolutional<br/>Token Reduction</p>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-block clip">
+                    <div class="block-icon">🌐</div>
+                    <div class="block-name">CLIP-large</div>
+                    <div class="block-params">300M params</div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">Dense Attention<br/>Global Context</p>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-block moe">
+                    <div class="block-icon">🧠</div>
+                    <div class="block-name">MoE Decoder</div>
+                    <div class="block-params">3B (570M active)</div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">Mixture of Experts<br/>Text Generation</p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem; color: var(--text-secondary);">
+                <p>Total DeepEncoder: <span style="color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace;">~380M parameters</span></p>
+                <p>Active at inference: <span style="color: var(--accent-green); font-family: 'JetBrains Mono', monospace;">~570M parameters</span></p>
+            </div>
+        </div>
+
+        <!-- Compression Demo -->
+        <div class="compression-demo reveal">
+            <h3 class="animation-title">The Compression Magic in Action</h3>
+            <div class="demo-visual">
+                <div class="document-preview">
+                    <div class="doc-lines" id="doc-lines">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+                <div class="compress-arrow">⟹</div>
+                <div class="compressed-preview">🖼️</div>
+            </div>
+            <div class="compression-stats">
+                <div class="comp-stat">
+                    <div class="comp-stat-value cyan">1000</div>
+                    <div class="stat-label">Input Text Tokens</div>
+                </div>
+                <div class="comp-stat">
+                    <div class="comp-stat-value magenta">÷10</div>
+                    <div class="stat-label">Compression Ratio</div>
+                </div>
+                <div class="comp-stat">
+                    <div class="comp-stat-value gold">100</div>
+                    <div class="stat-label">Vision Tokens</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Deep Dive -->
+        <div class="code-section reveal">
+            <h3 class="animation-title">Understanding the Resolution Modes</h3>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">DeepSeek-OCR supports multiple resolution modes for different use cases</p>
+            
+            <div class="code-block">
+<span class="comment"># DeepEncoder Resolution Modes</span>
+
+<span class="keyword">Tiny</span>:    512×512   → <span class="string">64 vision tokens</span>   <span class="comment"># Maximum compression</span>
+<span class="keyword">Small</span>:   640×640   → <span class="string">100 vision tokens</span>  <span class="comment"># High compression</span>
+<span class="keyword">Base</span>:    768×768   → <span class="string">144 vision tokens</span>  <span class="comment"># Balanced</span>
+<span class="keyword">Large</span>:   1024×1024 → <span class="string">256 vision tokens</span>  <span class="comment"># High detail</span>
+<span class="keyword">Gundam</span>:  1280×1280 → <span class="string">400 vision tokens</span>  <span class="comment"># Complex documents</span>
+<span class="keyword">Gundam-M</span>: n×640×640 tiles + 1024×1024 global <span class="comment"># Maximum quality</span>
+
+<span class="comment"># The magic formula:</span>
+<span class="function">compression_ratio</span> = text_tokens / vision_tokens
+<span class="comment"># When ratio < 10×: 97% accuracy</span>
+<span class="comment"># When ratio = 20×: ~60% accuracy (still useful for "blurry" memory)</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Memory Forgetting Section -->
+    <section id="memory">
+        <div class="section-header">
+            <div class="section-number">04 / THE VISION</div>
+            <h2 class="section-title">AI Memory Like Human Memory</h2>
+            <p class="section-subtitle">How optical compression enables natural forgetting mechanisms</p>
+        </div>
+
+        <div class="memory-section reveal">
+            <h3 class="animation-title">The Forgetting Curve: AI Edition</h3>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">
+                Recent memories stay sharp. Older memories become blurry but remain accessible.
+            </p>
+
+            <div class="memory-visual">
+                <div class="memory-block">
+                    <div class="memory-image recent">
+                        <span style="padding: 1rem;">CRISP<br/>CLEAR<br/>TEXT</span>
+                    </div>
+                    <div class="memory-label">Just Now</div>
+                    <div class="memory-tokens">256 tokens</div>
+                </div>
+                <div class="memory-block">
+                    <div class="memory-image older">
+                        <span style="padding: 1rem;">Slightly<br/>Faded<br/>Text</span>
+                    </div>
+                    <div class="memory-label">Yesterday</div>
+                    <div class="memory-tokens">100 tokens</div>
+                </div>
+                <div class="memory-block">
+                    <div class="memory-image oldest">
+                        <span style="padding: 1rem;">Blurry<br/>Memory</span>
+                    </div>
+                    <div class="memory-label">Last Week</div>
+                    <div class="memory-tokens">64 tokens</div>
+                </div>
+            </div>
+
+            <div style="background: var(--bg-tertiary); border-radius: 20px; padding: 2rem; margin-top: 3rem;">
+                <h4 style="font-family: 'Playfair Display', serif; margin-bottom: 1rem;">💡 The Key Insight</h4>
+                <p style="color: var(--text-secondary); font-size: 1.1rem;">
+                    Just like humans don't remember every detail of every conversation, AI can now <strong>"progressively forget"</strong> older context by rendering it to lower-resolution images. This saves massive computational resources while maintaining the gist of past information.
+                </p>
+                <p style="color: var(--text-secondary); font-size: 1.1rem; margin-top: 1rem;">
+                    <span style="color: var(--accent-cyan);">Recent context</span> = High-resolution image = More tokens = Perfect recall<br/>
+                    <span style="color: var(--accent-gold);">Old context</span> = Low-resolution image = Fewer tokens = Fuzzy but accessible
+                </p>
+            </div>
+        </div>
+
+        <!-- Why This Matters -->
+        <div class="insights-grid reveal">
+            <div class="insight-card">
+                <div class="insight-icon">🚀</div>
+                <h3>Massive Context Windows</h3>
+                <p>With 10× compression, a model with 100K context window could effectively handle <strong>1 million tokens</strong> of history. Imagine chatting with AI that remembers your entire relationship!</p>
+            </div>
+            <div class="insight-card">
+                <div class="insight-icon">💰</div>
+                <h3>Cost Reduction</h3>
+                <p>Processing long documents costs <strong>10× less</strong>. Enterprise applications analyzing thousands of pages become economically viable. Legal review, historical archives, research papers—all accessible.</p>
+            </div>
+            <div class="insight-card">
+                <div class="insight-icon">🌱</div>
+                <h3>Greener AI</h3>
+                <p>Less computation means <strong>smaller carbon footprint</strong>. As AI scales globally, efficient memory storage could significantly reduce the environmental impact of long-context processing.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results">
+        <div class="section-header">
+            <div class="section-number">05 / THE PROOF</div>
+            <h2 class="section-title">Benchmark Results</h2>
+            <p class="section-subtitle">How DeepSeek-OCR compares to the competition</p>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="comparison-section reveal">
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Tokens per Page</th>
+                        <th>Performance</th>
+                        <th>Efficiency</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>DeepSeek-OCR</strong></td>
+                        <td class="winner">100 tokens</td>
+                        <td class="winner">State-of-the-art</td>
+                        <td class="winner">200K+ pages/day</td>
+                    </tr>
+                    <tr>
+                        <td>GOT-OCR2.0</td>
+                        <td>256 tokens</td>
+                        <td>High</td>
+                        <td>Good</td>
+                    </tr>
+                    <tr>
+                        <td>MinerU2.0</td>
+                        <td>6000+ tokens</td>
+                        <td>High</td>
+                        <td>Moderate</td>
+                    </tr>
+                    <tr>
+                        <td>Traditional OCR + LLM</td>
+                        <td>~1000 tokens</td>
+                        <td>Variable</td>
+                        <td>Limited</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Example Use Cases -->
+        <div class="examples-grid reveal">
+            <div class="example-card">
+                <div class="example-header">
+                    <h3>📊 Business Reports</h3>
+                    <p>Financial documents, quarterly reports, presentations</p>
+                </div>
+                <div class="example-content">
+                    <div class="example-metric">
+                        <span class="metric-label">Compression Ratio</span>
+                        <span class="metric-value">10×</span>
+                    </div>
+                    <div class="example-metric">
+                        <span class="metric-label">Accuracy</span>
+                        <span class="metric-value">97%+</span>
+                    </div>
+                    <div class="example-metric">
+                        <span class="metric-label">Tokens Needed</span>
+                        <span class="metric-value">~100/page</span>
+                    </div>
+                </div>
+            </div>
+            <div class="example-card">
+                <div class="example-header">
+                    <h3>📚 Books & Articles</h3>
+                    <p>Long-form content, research papers, literature</p>
+                </div>
+                <div class="example-content">
+                    <div class="example-metric">
+                        <span class="metric-label">Compression Ratio</span>
+                        <span class="metric-value">7-10×</span>
+                    </div>
+                    <div class="example-metric">
+                        <span class="metric-label">Accuracy</span>
+                        <span class="metric-value">96%+</span>
+                    </div>
+                    <div class="example-metric">
+                        <span class="metric-label">Tokens Needed</span>
+                        <span class="metric-value">~100/page</span>
+                    </div>
+                </div>
+            </div>
+            <div class="example-card">
+                <div class="example-header">
+                    <h3>📰 Newspapers</h3>
+                    <p>Dense layouts, multi-column, mixed content</p>
+                </div>
+                <div class="example-content">
+                    <div class="example-metric">
+                        <span class="metric-label">Compression Ratio</span>
+                        <span class="metric-value">5-7×</span>
+                    </div>
+                    <div class="example-metric">
+                        <span class="metric-label">Accuracy</span>
+                        <span class="metric-value">90%+</span>
+                    </div>
+                    <div class="example-metric">
+                        <span class="metric-label">Tokens Needed</span>
+                        <span class="metric-value">~800/page</span>
+                    </div>
+                </div>
+            </div>
+            <div class="example-card">
+                <div class="example-header">
+                    <h3>🎨 Slides & Presentations</h3>
+                    <p>Visual layouts with text, charts, diagrams</p>
+                </div>
+                <div class="example-content">
+                    <div class="example-metric">
+                        <span class="metric-label">Compression Ratio</span>
+                        <span class="metric-value">15×+</span>
+                    </div>
+                    <div class="example-metric">
+                        <span class="metric-label">Accuracy</span>
+                        <span class="metric-value">95%+</span>
+                    </div>
+                    <div class="example-metric">
+                        <span class="metric-label">Tokens Needed</span>
+                        <span class="metric-value">~64/slide</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Takeaways -->
+        <div class="animation-container reveal">
+            <h3 class="animation-title">🎯 Key Takeaways</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                <div style="text-align: center; padding: 2rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🔮</div>
+                    <h4 style="font-family: 'Playfair Display', serif; margin-bottom: 0.5rem;">Paradigm Shift</h4>
+                    <p style="color: var(--text-secondary);">Text as images is not crazy—it's the future. Visual tokens may become the default for long-context AI.</p>
+                </div>
+                <div style="text-align: center; padding: 2rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">⚡</div>
+                    <h4 style="font-family: 'Playfair Display', serif; margin-bottom: 0.5rem;">Production Ready</h4>
+                    <p style="color: var(--text-secondary);">With 200K+ pages/day on a single GPU, DeepSeek-OCR is ready for enterprise-scale deployment.</p>
+                </div>
+                <div style="text-align: center; padding: 2rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🌍</div>
+                    <h4 style="font-family: 'Playfair Display', serif; margin-bottom: 0.5rem;">Open Source</h4>
+                    <p style="color: var(--text-secondary);">Available on GitHub and HuggingFace under MIT license. Anyone can use, modify, and build upon it.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Expert Quote -->
+    <section style="background: var(--bg-secondary); padding: 6rem 2rem; margin: 4rem 0; border-radius: 30px;">
+        <div style="max-width: 900px; margin: 0 auto; text-align: center;">
+            <div style="font-size: 4rem; margin-bottom: 2rem;">💬</div>
+            <blockquote style="font-family: 'Playfair Display', serif; font-size: 1.8rem; font-style: italic; line-height: 1.6; margin-bottom: 2rem;">
+                "Maybe it makes more sense that all inputs to LLMs should only ever be images. Even if you happen to have pure text input, maybe you'd prefer to render it and then feed that in."
+            </blockquote>
+            <cite style="color: var(--text-secondary);">— Andrej Karpathy, Co-founder of OpenAI, Former Tesla AI Director</cite>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <h2 class="footer-title">DeepSeek-OCR: The Future of AI Memory</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                Released October 2025 by DeepSeek AI • Open Source under MIT License
+            </p>
+            <div class="footer-links">
+                <a href="https://github.com/deepseek-ai/DeepSeek-OCR" class="footer-link" target="_blank">📦 GitHub</a>
+                <a href="https://huggingface.co/deepseek-ai/DeepSeek-OCR" class="footer-link" target="_blank">🤗 HuggingFace</a>
+                <a href="https://arxiv.org/abs/2510.18234" class="footer-link" target="_blank">📄 Paper</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Generate traditional tokens
+        const traditionalTokens = document.getElementById('traditional-tokens');
+        for (let i = 0; i < 100; i++) {
+            const token = document.createElement('div');
+            token.className = 'token';
+            token.style.animationDelay = `${Math.random() * 2}s`;
+            traditionalTokens.appendChild(token);
+        }
+
+        // Generate DeepSeek vision tokens
+        const deepseekTokens = document.getElementById('deepseek-tokens');
+        for (let i = 0; i < 10; i++) {
+            const token = document.createElement('div');
+            token.className = 'vision-token';
+            token.style.animationDelay = `${Math.random() * 2}s`;
+            deepseekTokens.appendChild(token);
+        }
+
+        // Generate document lines
+        const docLines = document.getElementById('doc-lines');
+        const lineWidths = [95, 88, 92, 75, 90, 85, 95, 88, 70, 92, 88, 95, 80, 85, 90, 75];
+        lineWidths.forEach((width, i) => {
+            const line = document.createElement('div');
+            line.className = 'doc-line';
+            line.style.setProperty('--width', width + '%');
+            line.style.animationDelay = `${i * 0.1}s`;
+            docLines.appendChild(line);
+        });
+
+        // Generate traditional patch grid with colors
+        const tradPatchGrid = document.getElementById('trad-patch-grid');
+        if (tradPatchGrid) {
+            const colors = ['#4A90D9', '#5BA3EC', '#FFE135', '#808080', '#606060', '#909090'];
+            // Create a pattern that looks like a document
+            const pattern = [
+                [3,3,3,3,3,3,3,3], // header area - gray
+                [0,0,0,0,1,3,3,3], // title - blue
+                [0,0,0,0,0,0,1,3], // text
+                [2,2,0,0,0,0,0,3], // heading yellow + text
+                [2,2,0,0,0,0,0,3],
+                [3,0,0,0,0,0,1,3], // more text
+                [3,0,0,0,0,1,3,3],
+                [3,3,4,4,4,4,3,3], // image placeholder
+                [3,0,0,0,0,0,0,3],
+                [3,3,3,3,3,3,3,3]  // footer
+            ];
+            
+            for (let row = 0; row < 10; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const patch = document.createElement('div');
+                    patch.className = 'mini-patch';
+                    const colorIndex = pattern[row] ? pattern[row][col] || 3 : 3;
+                    patch.style.background = colors[colorIndex];
+                    patch.style.animationDelay = `${(row * 8 + col) * 0.02}s, ${Math.random() * 2}s`;
+                    tradPatchGrid.appendChild(patch);
+                }
+            }
+        }
+
+        // Generate KV cache tokens - Traditional (many small)
+        const kvTraditional = document.getElementById('kv-tokens-traditional');
+        if (kvTraditional) {
+            for (let i = 0; i < 80; i++) {
+                const token = document.createElement('div');
+                token.className = 'kv-token';
+                token.style.animationDelay = `${i * 0.02}s`;
+                kvTraditional.appendChild(token);
+            }
+        }
+
+        // Generate KV cache tokens - DeepSeek (few compressed)
+        const kvDeepseek = document.getElementById('kv-tokens-deepseek');
+        if (kvDeepseek) {
+            for (let i = 0; i < 8; i++) {
+                const token = document.createElement('div');
+                token.className = 'kv-token compressed';
+                token.style.animationDelay = `${i * 0.1}s`;
+                kvDeepseek.appendChild(token);
+            }
+        }
+
+        // Analogy tabs
+        function showAnalogy(type) {
+            // Hide all content
+            document.querySelectorAll('.analogy-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.analogy-tab').forEach(t => t.classList.remove('active'));
+            
+            // Show selected
+            document.getElementById(type + '-analogy').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Scroll reveal animation
+        function reveal() {
+            const reveals = document.querySelectorAll('.reveal');
+            
+            reveals.forEach(element => {
+                const windowHeight = window.innerHeight;
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < windowHeight - elementVisible) {
+                    element.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', reveal);
+        reveal(); // Initial check
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Interactive hover effects on architecture blocks
+        document.querySelectorAll('.arch-block').forEach(block => {
+            block.addEventListener('mouseenter', () => {
+                block.style.transform = 'translateY(-10px) scale(1.05)';
+            });
+            block.addEventListener('mouseleave', () => {
+                block.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Animate stats on scroll
+        const stats = document.querySelectorAll('.stat-value, .comp-stat-value');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.8s ease forwards';
+                }
+            });
+        }, { threshold: 0.5 });
+
+        stats.forEach(stat => observer.observe(stat));
+
+        // Interactive click to restart sliding animation
+        document.querySelector('.sliding-source')?.addEventListener('click', () => {
+            const patches = document.querySelectorAll('.slide-patch');
+            patches.forEach(p => {
+                p.style.animation = 'none';
+                p.offsetHeight;
+                p.style.animation = null;
+            });
+        });
+    </script>
+</body>
+</html>
